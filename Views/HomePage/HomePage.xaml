@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ChatApp.Views.HomePage"
+             Title="Home">
+
+    <StackLayout Padding="20">
+        <!-- Başlık -->
+        <Label Text="Previous Conversations" 
+               FontSize="Medium" 
+               HorizontalOptions="Center" 
+               Margin="0,10"/>
+
+        <!-- Eski konuşmalar Listesi -->
+        <ListView x:Name="ConversationsListView" 
+                  ItemTapped="OnConversationTapped" 
+                  ItemsSource="{Binding PreviousConversations}" 
+                  Margin="0,10"
+                  SeparatorVisibility="Default">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextCell Text="{Binding UserName}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <!-- Sohbet Başlatma Butonu -->
+        <Button Text="Start New Chat"
+                x:Name="StartChatButton"
+                Clicked="OnFindNearbyUsersClicked"
+                Margin="0,10" />
+    </StackLayout>
+</ContentPage>

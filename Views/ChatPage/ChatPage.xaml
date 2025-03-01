@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ChatApp.Views.ChatPage"
+             Title="Chat">
+
+    <StackLayout Padding="20">
+        <!-- Sohbet Başlangıcında Seçilen Kullanıcı -->
+        <Label x:Name="UserNameLabel" 
+               Text="Selected User" 
+               FontSize="Medium" 
+               HorizontalOptions="Center" 
+               Margin="0,10" />
+
+        <!-- Mesajları Göster -->
+        <ListView x:Name="MessagesListView" ItemsSource="{Binding Messages}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <StackLayout>
+                            <Label Text="You:" FontSize="15" FontAttributes="Bold" />
+                            <Label Text="{Binding Content}" FontSize="15" />
+                            <Label Text="{Binding Timestamp}" FontSize="15" TextColor="Gray" />
+                        </StackLayout>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <!-- Mesaj Girişi -->
+        <Editor x:Name="MessageEntry" 
+                Placeholder="Type your message here" 
+                HeightRequest="100" 
+                AutoSize="TextChanges"
+                Margin="0,10" />
+
+        <!-- Mesajı Gönder Butonu -->
+        <Button Text="Send" 
+                x:Name="SendButton" 
+                Clicked="OnSendClicked" 
+                Margin="0,10" />
+
+    </StackLayout>
+</ContentPage>
