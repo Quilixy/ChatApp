@@ -7,26 +7,19 @@ namespace ChatApp.Services
 {
     public static class EncryptionService
     {
-        // Mesajı şifrelemek
-        public static async Task<string> EncryptMessage(string message)
+        public static async Task<string> Encrypt(string message)
         {
-            // Burada Playfair algoritması ile şifreleme işlemi yapılabilir
-            // Örnek olarak mesajın tersini döndürüyoruz
-            await Task.Delay(100); // Simülasyon amaçlı bekleme
+            
             char[] messageArray = message.ToCharArray();
             Array.Reverse(messageArray);
-            return new string(messageArray); // Şifreli mesaj
+            return new string(messageArray); 
         }
-
-        // Şifreyi çözme
-        public static async Task<string> DecryptMessage(string encryptedMessage)
+        
+        public static async Task<string> Decrypt(string content)
         {
-            // Burada Playfair algoritması ile çözme yapılabilir
-            // Örnek olarak tersini çözerek geri alıyoruz
-            await Task.Delay(100); // Simülasyon amaçlı bekleme
-            char[] messageArray = encryptedMessage.ToCharArray();
+            char[] messageArray = content.ToCharArray();
             Array.Reverse(messageArray);
-            return new string(messageArray); // Çözülmüş mesaj
+            return new string(messageArray); 
         }
     }
 }

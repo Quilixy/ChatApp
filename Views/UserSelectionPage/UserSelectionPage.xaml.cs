@@ -6,29 +6,27 @@ namespace ChatApp.Views
 {
     public partial class UserSelectionPage : ContentPage
     {
-
+        private string _chatId;
         public List<string> NearbyUsers { get; set; }
-
-        // Constructor: List<string> türünde kullanıcıları alacak şekilde düzenlendi
+        
         public UserSelectionPage(List<string> nearbyUsers)
         {
             InitializeComponent();
             NearbyUsers = nearbyUsers;
-            UsersListView.ItemsSource = NearbyUsers; // Kullanıcıları listele
+            UsersListView.ItemsSource = NearbyUsers; 
         }
-
         private async void OnUserTapped(object sender, ItemTappedEventArgs e)
         {
             var selectedUser = e.Item as string;
             if (selectedUser != null)
             {
-                // Seçilen kullanıcıya ait chatId'yi burada alıyoruz. Genellikle chatId, kullanıcı adı ile aynı olabilir
-                string chatId = selectedUser; // Burada chatId'nin kullanıcı adı olduğunu varsayıyoruz
                 string receiverUsername = selectedUser; // Alıcı kişi (seçilen kullanıcı)
-
-                // Seçilen kullanıcı ile sohbet başlat (ChatPage)
-                await Navigation.PushAsync(new ChatPage(chatId, receiverUsername));
+                
+                await Navigation.PushAsync(new ChatPage(receiverUsername));
             }
         }
+
+        //private void CreateChatIDOnTapped(object sender, ItemTappedEventArgs e){}
+        
     }
 }

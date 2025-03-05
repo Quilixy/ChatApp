@@ -10,12 +10,12 @@ namespace ChatApp.Utilities
     {
         public static async Task<string> EncryptMessage(string message)
         {
-            return await EncryptionService.EncryptMessage(message);
+            return await EncryptionService.Encrypt(message);
         }
 
         public static async Task<string> DecryptMessage(string encryptedMessage)
         {
-            return await EncryptionService.DecryptMessage(encryptedMessage);
+            return await EncryptionService.Decrypt(encryptedMessage);
         }
     }
 }

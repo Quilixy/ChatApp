@@ -1,70 +1,55 @@
 using ChatApp.Models;
-using Microsoft.Maui.Controls;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
+using ChatApp.Services;
+
 
 namespace ChatApp.Views
 {
     public partial class ChatPage : ContentPage
     {
-        private string _chatId;
+        private readonly ChatService _chatService;
+        private Task<string> _chatId;
         private string _receiverUsername;
-        public ObservableCollection<MessageModel> Messages { get; set; } = new ObservableCollection<MessageModel>(); 
+        public ObservableCollection<MessageModel> Messages { get; set; } = new ();
 
-        public ChatPage(string chatId, string receiverUsername )
+        public ChatPage( string receiverUsername)
         {
             InitializeComponent();
-            _chatId = chatId;
-            _receiverUsername = receiverUsername;
+            _chatService = new ChatService();
             _receiverUsername = string.IsNullOrEmpty(receiverUsername) ? "Unknown" : receiverUsername;
             UserNameLabel.Text = $"Chatting with {_receiverUsername}";
-
+            _chatId = App.DatabaseService.GetOrCreateChatIdAsync(App.CurrentUser.Username, _receiverUsername);//chatId;
+            //_chatId = new Random().NextInt64().ToString();
+            
             if (App.CurrentUser == null)
             {
                 DisplayAlert("Hata", "Kullanıcı bilgisi bulunamadı. Lütfen tekrar giriş yapın.", "Tamam");
                 Navigation.PushAsync(new LoginPage());
                 return;
             }
-
-            BindingContext = this; 
             LoadMessages();
+            BindingContext = this;
+            
         }
 
-        private async void LoadMessages()
+        private async void LoadMessages( )
         {
-            var messages = await App.DatabaseService.GetMessagesForChatAsync(_chatId);
-            Messages.Clear(); // Eski mesajları temizle
-
-            if (messages != null)
-            {
-                foreach (var message in messages)
-                {
-                    Messages.Add(message); // Yeni mesajları ekle
-                }
-            }
-
+            Messages = await _chatService.LoadMessagesAsync(await _chatId);
             MessagesListView.ItemsSource = Messages;
         }
+        
 
         private async void OnSendClicked(object sender, EventArgs e)
         {
+              
             string messageContent = MessageEntry.Text;
-            if (!string.IsNullOrEmpty(messageContent) && App.CurrentUser != null)
+            if (string.IsNullOrEmpty(messageContent) && App.CurrentUser == null)
             {
-                var message = new MessageModel
-                {
-                    Sender = App.CurrentUser.Username,
-                    Receiver = _receiverUsername,
-                    Content = messageContent,
-                    Timestamp = DateTime.UtcNow
-                };
-
-                await App.DatabaseService.SaveMessageAsync(message);
-                MessageEntry.Text = "";  // Mesaj kutusunu temizle
-
-                await App.DatabaseService.UpdateConversationAsync(message.Sender, message.Receiver, message.Content);
-                LoadMessages();
+                DisplayAlert("Hata", "Mesaj veya kullanıcı bilgisi alınamadı.", "Tamam");
             }
+            await _chatService.SendMessageAsync(App.CurrentUser.Username, _receiverUsername, messageContent);
+            MessageEntry.Text = "";
+            LoadMessages();
         }
     }
 }

@@ -12,10 +12,11 @@ namespace ChatApp.Views
 
         public HomePage()
         {
+            LoadConversations();
             InitializeComponent();
 
             // Veritabanından sohbet geçmişini yükle
-            LoadConversations();
+            
 
              MessagingCenter.Subscribe<ChatPage, ObservableCollection<ConversationModel>>(this, "MessagesUpdated", (sender, updatedConversations) =>
             {
@@ -26,22 +27,23 @@ namespace ChatApp.Views
 
         private async void LoadConversations()
         {
-            var conversations = await App.DatabaseService.GetConversationsAsync();
-            Conversations = new ObservableCollection<ConversationModel>(conversations ?? new List<ConversationModel>());
-            ConversationsListView.ItemsSource = Conversations;
-            
-            // Eğer conversations null dönerse boş bir liste kullan
-           // Conversations.Clear();
-            //if (conversations != null)
-            //{
-            //    foreach (var conversation in conversations)
-            //    {
-            //        Conversations.Add(conversation); // Yeni sohbetleri ekle
-            //    }
-            //}
+            string sender = App.CurrentUser.Username; // Kullanıcı adı veya ID al
 
-            // Listeyi yeniden bağlama işlemi
-            ConversationsListView.ItemsSource = Conversations;
+            if (string.IsNullOrEmpty(sender))
+            {
+                // Kullanıcı bilgisi yoksa boş liste ata
+                Conversations = new ObservableCollection<ConversationModel>();
+            }
+            else
+            {
+                // Sadece oturum açmış kullanıcının gönderdiği konuşmaları getir
+                var conversations = await App.DatabaseService.GetConversationsAsync(sender);
+                Conversations = new ObservableCollection<ConversationModel>(conversations ?? new List<ConversationModel>());
+                ConversationsListView.ItemsSource = Conversations;
+            }
+
+            
+            
         }
 
         private async void OnConversationTapped(object sender, ItemTappedEventArgs e)
@@ -55,7 +57,7 @@ namespace ChatApp.Views
                 string receiverUsername = selectedConversation.UserName; // Konuşulan kişi
                 
                 // Seçilen sohbeti aç (ChatPage)
-                await Navigation.PushAsync(new ChatPage(chatId, receiverUsername));
+                await Navigation.PushAsync(new ChatPage(receiverUsername));
             }
         }
 

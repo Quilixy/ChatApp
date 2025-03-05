@@ -33,12 +33,12 @@
                 HeightRequest="100" 
                 AutoSize="TextChanges"
                 Margin="0,10" />
-
         <!-- Mesajı Gönder Butonu -->
         <Button Text="Send" 
                 x:Name="SendButton" 
                 Clicked="OnSendClicked" 
                 Margin="0,10" />
+               
 
     </StackLayout>
 </ContentPage>

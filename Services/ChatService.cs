@@ -1,29 +1,60 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using ChatApp.Models;
 
 namespace ChatApp.Services
 {
-    public static class ChatService
+    public class ChatService
     {
-        // Kişisel sohbet mesajı gönderme
-        public static async Task SendMessage(string encryptedMessage)
+        public async Task<ObservableCollection<MessageModel>> LoadMessagesAsync(string chatId)
         {
-            // Burada şifreli mesajın hedefe gönderilmesi işlemi yapılır.
-            // Örnek: WebSocket veya SignalR kullanarak mesaj iletme
-            await Task.Delay(500); // Simülasyon için gecikme
-            // Mesaj gönderildiği bildirisi
-            System.Diagnostics.Debug.WriteLine($"Message sent: {encryptedMessage}");
+            var messages = await App.DatabaseService.GetMessagesForChatAsync(chatId);
+            var decrpytedMessages = new ObservableCollection<MessageModel>();
+            if (messages != null )
+            {
+                foreach (var message in messages)
+                {
+                    message.Content = await EncryptionService.Decrypt(message.Content);
+                    decrpytedMessages.Add(message);
+                }
+            }
+            return decrpytedMessages;
+        }
+        public async Task SendMessageAsync(string sender, string receiver, string content)
+        {
+            if (string.IsNullOrEmpty(content) && App.CurrentUser == null)
+            {
+                Console.WriteLine("Hata: Mesaj veya kullanıcı bilgisi alınamadı");;
+                
+            }
+            //if (chatId == null)
+            //{
+               // await App.DatabaseService.GenerateNewChatIdAsync();
+            //}
+            else
+            {
+              string encryptedContent = await EncryptionService.Encrypt(content);
+                             var message = new MessageModel
+                             {
+                                 Sender = sender,
+                                 Receiver = receiver,
+                                 Content = encryptedContent,
+                                 ChatId =await App.DatabaseService.GetOrCreateChatIdAsync(sender, receiver),
+                                 Timestamp = DateTime.Now
+                             };
+                             await App.DatabaseService.SaveMessageAsync(message);
+                             await App.DatabaseService.UpdateConversationAsync(message.Sender, message.Receiver, message.Content);
+            }
         }
 
         // Grup sohbeti için mesaj gönderme
-        public static async Task SendGroupMessage(string encryptedMessage)
+        public async Task SendGroupMessage(string Content)
         {
-            // Aynı şekilde grup mesajları da burada gönderilebilir
-            await Task.Delay(500); // Simülasyon için gecikme
-            // Grup mesajı gönderildiği bildirisi
-            System.Diagnostics.Debug.WriteLine($"Group message sent: {encryptedMessage}");
+            
         }
     }
+    
 }

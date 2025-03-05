@@ -16,39 +16,23 @@ namespace ChatApp.Services
             _database.CreateTableAsync<ConversationModel>().Wait(); // Conversation table
             _database.CreateTableAsync<UserModel>().Wait(); // User table
         }
-
         
-
-        
-
-        
-       
-
-        // Get user by username
         public async Task<UserModel> GetUserAsync(string username)
         {
             return await _database.Table<UserModel>().Where(u => u.Username == username).FirstOrDefaultAsync();
         }
 
-         // Kullanıcı ekleme metodu
+         
         public async Task<int> AddUserAsync(UserModel user)
         {
             try
             {
-                // Veritabanına kullanıcıyı ekliyoruz
                 return await _database.InsertAsync(user);
             }
             catch (Exception ex)
             {
-                // Hata yakalama
                 throw new Exception("Kullanıcı eklenirken hata oluştu: " + ex.Message);
             }
-        }
-
-        // Verify password for a user
-        public async Task<bool> VerifyPasswordAsync(UserModel user, string password)
-        {
-            return user.PasswordHash == password; // Şifre doğrulama
         }
 
         // Get participants for a chat
@@ -78,22 +62,51 @@ namespace ChatApp.Services
 //-------------------------------------------------------------------------------------------------------------------------------------------   
 
         // Get messages for a specific chat
+        
+        public async Task<string> GetOrCreateChatIdAsync(string sender, string receiver)
+        {
+            // İki kullanıcı arasında bir konuşma varsa, o konuşmaya ait bir ChatId döndürüyoruz
+            var existingConversation = await _database.Table<MessageModel>()
+                .Where(m => (m.Sender == sender && m.Receiver == receiver) || 
+                            (m.Sender == receiver && m.Receiver == sender))
+                .FirstOrDefaultAsync();
+
+            if (existingConversation != null)
+            {
+                // Eğer böyle bir konuşma varsa, mevcut ChatId'yi döndürüyoruz
+                return existingConversation.ChatId;
+            }
+
+            // Eğer böyle bir konuşma yoksa, yeni bir ChatId oluşturuyoruz
+            string newChatId = await GenerateNewChatIdAsync();
+
+            return newChatId;
+        }
+
+        // Generate a new ChatId for the conversation between sender and receiver
+        public async Task<string> GenerateNewChatIdAsync()
+        {
+            // En son eklenen mesajın ID'sini alıyoruz ve onu artırarak yeni bir ChatId oluşturuyoruz
+            var lastMessage = await _database.Table<MessageModel>()
+                .OrderByDescending(m => m.Id)
+                .FirstOrDefaultAsync();
+
+            int newId = lastMessage == null ? 1 : lastMessage.Id + 1;
+
+            return newId.ToString();
+        }
+        
+        
+        
+        
         public async Task<List<MessageModel>> GetMessagesForChatAsync(string chatId)
         {
-            // ChatId'ye göre mesajları çek
-            //return await _database.Table<MessageModel>()
-                                   //.Where(m => m.ChatId == chatId)
-                                   //.ToListAsync();
-        
         try
         {
-            
             var messages = await _database.Table<MessageModel>()
-                                .Where(m => m.Receiver == chatId || m.Sender == chatId) //  Alıcı veya gönderici olarak filtrele
-                                .OrderBy(m => m.Timestamp)                              // 🔥 Mesajları zaman sırasına göre getir
+                                .Where(m => m.ChatId == chatId ) //Buraya bakılacak
+                                .OrderBy(m => m.Timestamp)                              
                                 .ToListAsync();
-
-            //Console.WriteLine($"DB'den Gelen Mesaj Sayısı: {messages.Count}");        //  Debug için log ekle
             return messages;
         }
         catch (Exception ex)
@@ -116,22 +129,24 @@ namespace ChatApp.Services
 //-------------------------------------------------------------------------------------------------------------------------------------------     
         
         // Get conversations (chat list)
-         public async Task<List<ConversationModel>> GetConversationsAsync()
+         public async Task<List<ConversationModel>> GetConversationsAsync(string sender)
         {
-            return await _database.Table<ConversationModel>().ToListAsync();
+            return await _database.Table<ConversationModel>()
+                .Where(c => c.Sender == sender)
+                .ToListAsync();
         }
         
         public async Task UpdateConversationAsync(string sender, string receiver, string lastMessage)
         {
             var existingConversation = await _database.Table<ConversationModel>()
-                .Where(c => c.UserName == receiver || c.UserName == sender)
+                .Where(c => c.UserName == receiver && c.Sender == sender)
                 .FirstOrDefaultAsync();
 
             if (existingConversation != null)
             {
                 // Eğer konuşma zaten varsa, son mesajı ve zamanı güncelle
                 existingConversation.LastMessage = lastMessage;
-                existingConversation.LastMessageTime = DateTime.UtcNow;
+                existingConversation.LastMessageTime = DateTime.Now;
                 await _database.UpdateAsync(existingConversation);
             }
             else
@@ -141,7 +156,8 @@ namespace ChatApp.Services
                 {
                     UserName = receiver,
                     LastMessage = lastMessage,
-                    LastMessageTime = DateTime.UtcNow
+                    LastMessageTime = DateTime.Now,
+                    Sender = sender
                 };
                 await _database.InsertAsync(newConversation);
             }
