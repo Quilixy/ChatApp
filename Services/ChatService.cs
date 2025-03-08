@@ -37,7 +37,7 @@ namespace ChatApp.Services
             }
             else
             {
-              string encryptedContent = await EncryptionService.Encrypt(content);
+                string encryptedContent = await EncryptionService.Encrypt(content);
                 var message = new MessageModel
                 {
                     Sender = sender,
@@ -47,7 +47,7 @@ namespace ChatApp.Services
                     Timestamp = DateTime.Now
                 };
                 await App.DatabaseService.SaveMessageAsync(message);
-                await App.DatabaseService.UpdateConversationAsync(message.Sender, message.Receiver, message.Content);
+                //await App.DatabaseService.UpdateConversationAsync(message.Sender, message.Receiver, message.Content);
             }
         }
 

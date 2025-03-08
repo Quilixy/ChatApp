@@ -19,8 +19,36 @@
                   SeparatorVisibility="Default">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextCell Text="{Binding UserName}" />
-                </DataTemplate>
+                    <ViewCell>
+                        <StackLayout Orientation="Vertical" Padding="10">
+                            <!-- Alıcı Kullanıcı -->
+                            <Label Text="{Binding ReceiverUserName}" 
+                                VerticalOptions="Center" 
+                                HorizontalOptions="StartAndExpand" 
+                                FontSize="Medium" />
+                            <StackLayout Orientation="Horizontal">
+                                <!-- Gönderen Kullanıcı -->
+                                <Label Text="{Binding Sender}" 
+                                    VerticalOptions="Center" 
+                                    HorizontalOptions="Start" 
+                                    FontSize="Small" 
+                                    TextColor="#FFBDB8B8" />
+                                <!-- Gönderilen Son Mesaj -->
+                                <Label Text="{Binding LastMessage}" 
+                                    VerticalOptions="Center" 
+                                    HorizontalOptions="Start" 
+                                    FontSize="Small" 
+                                    TextColor="Grey" />
+                            </StackLayout>
+                            <!-- Gönderilen Son Mesaj Zamanı -->
+                            <Label Text="{Binding LastMessageTime}" 
+                                VerticalOptions="Center" 
+                                HorizontalOptions="Start" 
+                                FontSize="Small" 
+                                TextColor="Grey" />
+                        </StackLayout>
+                    </ViewCell>
+                </DataTemplate>                
             </ListView.ItemTemplate>
         </ListView>
 

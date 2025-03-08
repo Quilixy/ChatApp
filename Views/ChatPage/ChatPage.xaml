@@ -18,7 +18,7 @@
                 <DataTemplate>
                     <ViewCell>
                         <StackLayout>
-                            <Label Text="You:" FontSize="15" FontAttributes="Bold" />
+                            <Label Text="{Binding Sender}" FontSize="15" FontAttributes="Bold" />
                             <Label Text="{Binding Content}" FontSize="15" />
                             <Label Text="{Binding Timestamp}" FontSize="15" TextColor="Gray" />
                         </StackLayout>

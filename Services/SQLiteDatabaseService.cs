@@ -82,7 +82,6 @@ namespace ChatApp.Services
 
             return newChatId;
         }
-
         // Generate a new ChatId for the conversation between sender and receiver
         public async Task<string> GenerateNewChatIdAsync()
         {
@@ -95,35 +94,28 @@ namespace ChatApp.Services
 
             return newId.ToString();
         }
-        
-        
-        
-        
         public async Task<List<MessageModel>> GetMessagesForChatAsync(string chatId)
         {
-        try
-        {
-            var messages = await _database.Table<MessageModel>()
-                                .Where(m => m.ChatId == chatId ) //Buraya bakılacak
-                                .OrderBy(m => m.Timestamp)                              
-                                .ToListAsync();
-            return messages;
+            try
+            {
+                var messages = await _database.Table<MessageModel>()
+                                    .Where(m => m.ChatId == chatId ) 
+                                    .OrderBy(m => m.Timestamp)                              
+                                    .ToListAsync();
+                return messages;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Hata: {ex.Message}");
+                return new List<MessageModel>();
+            }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Hata: {ex.Message}");
-            return new List<MessageModel>();
-        }
-        
-        }
-
-
-
         // Save a new message to the database
         public async Task SaveMessageAsync(MessageModel message)
         {
             // Yeni mesajı veritabanına kaydet
             await _database.InsertAsync(message);
+            await App.DatabaseService.UpdateConversationAsync(message.Sender, message.Receiver, message.Content);
         }
 
 //-------------------------------------------------------------------------------------------------------------------------------------------     
@@ -132,10 +124,9 @@ namespace ChatApp.Services
          public async Task<List<ConversationModel>> GetConversationsAsync(string sender)
         {
             return await _database.Table<ConversationModel>()
-                .Where(c => c.Sender == sender)
+                .Where(c => c.Sender == sender || c.UserName == sender)
                 .ToListAsync();
         }
-        
         public async Task UpdateConversationAsync(string sender, string receiver, string lastMessage)
         {
             var existingConversation = await _database.Table<ConversationModel>()
@@ -162,7 +153,5 @@ namespace ChatApp.Services
                 await _database.InsertAsync(newConversation);
             }
         }
-
-
     }
 }

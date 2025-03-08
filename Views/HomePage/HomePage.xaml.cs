@@ -12,58 +12,72 @@ namespace ChatApp.Views
 
         public HomePage()
         {
-            LoadConversations();
             InitializeComponent();
-
-            // Veritabanından sohbet geçmişini yükle
             
-
+            
              MessagingCenter.Subscribe<ChatPage, ObservableCollection<ConversationModel>>(this, "MessagesUpdated", (sender, updatedConversations) =>
             {
                 Conversations = updatedConversations;
                 ConversationsListView.ItemsSource = Conversations;
             });
+            LoadConversations();
         }
 
         private async void LoadConversations()
         {
-            string sender = App.CurrentUser.Username; // Kullanıcı adı veya ID al
+            string sender = App.CurrentUser.Username;
 
             if (string.IsNullOrEmpty(sender))
             {
-                // Kullanıcı bilgisi yoksa boş liste ata
                 Conversations = new ObservableCollection<ConversationModel>();
             }
             else
             {
-                // Sadece oturum açmış kullanıcının gönderdiği konuşmaları getir
                 var conversations = await App.DatabaseService.GetConversationsAsync(sender);
-                Conversations = new ObservableCollection<ConversationModel>(conversations ?? new List<ConversationModel>());
+                if(conversations != null)
+                {
+                    foreach(var conversation in conversations)
+                    {
+                        if (!string.IsNullOrEmpty(conversation.LastMessage))
+                        {
+                            // Şifre çözme işlemi
+                            conversation.LastMessage = await EncryptionService.Decrypt(conversation.LastMessage);
+                        }
+                    }
+                    Conversations = new ObservableCollection<ConversationModel>(conversations);
+                }
+                else
+                {
+                    Conversations = new ObservableCollection<ConversationModel>();
+                }
+                
                 ConversationsListView.ItemsSource = Conversations;
-            }
-
-            
-            
+            }          
         }
 
         private async void OnConversationTapped(object sender, ItemTappedEventArgs e)
         {
             var selectedConversation = e.Item as ConversationModel;
-
-            // Seçilen sohbet null değilse işlemi yap
             if (selectedConversation != null)
             {
-                string chatId = selectedConversation.UserName; // Veya chat ID
-                string receiverUsername = selectedConversation.UserName; // Konuşulan kişi
+                string chatId = selectedConversation.UserName;
+                string receiverUsername = selectedConversation.UserName;
+                string senderUserName = selectedConversation.Sender;
+                if(receiverUsername != App.CurrentUser.Username)
+                {
+                    await Navigation.PushAsync(new ChatPage(receiverUsername));
+                }
+                else
+                {
+                    receiverUsername = senderUserName;
+                    await Navigation.PushAsync(new ChatPage(receiverUsername));
+                }
                 
-                // Seçilen sohbeti aç (ChatPage)
-                await Navigation.PushAsync(new ChatPage(receiverUsername));
             }
         }
 
         private async void OnFindNearbyUsersClicked(object sender, EventArgs e)
         {
-            // Yakındaki Wi-Fi kullanıcılarını al
             var nearbyUsers = await WiFiService.GetNearbyUsers();
             
             if (nearbyUsers != null && nearbyUsers.Count > 0)

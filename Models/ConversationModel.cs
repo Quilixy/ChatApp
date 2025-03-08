@@ -11,5 +11,6 @@ namespace ChatApp.Models
         public string Sender { get; set; } // Gönderen
         public DateTime LastMessageTime { get; set; } // Son mesaj zamanı
         public string LastMessage { get; set; } // Son mesajın şifreli içeriği
+        public string ReceiverUserName => UserName == App.CurrentUser.Username ? Sender : UserName;
     }
 }

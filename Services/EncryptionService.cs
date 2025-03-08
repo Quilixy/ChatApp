@@ -10,8 +10,6 @@ namespace ChatApp.Services
     {
         public static async Task<string> Encrypt(string message)
         {
-            
-           
             char[] messageArray = message.ToCharArray();
             Array.Reverse(messageArray);
             return new string(messageArray); 
