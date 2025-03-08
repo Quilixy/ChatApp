@@ -29,7 +29,11 @@ namespace ChatApp.Views
                 await DisplayAlert("Hata", "Şifreler uyuşmuyor!", "Tamam");
                 return;
             }
-            await UserService.RegisterAsync(username, password);
+            var isLogin = await UserService.RegisterAsync(username, password);
+            if(isLogin == true)
+            {
+                await Navigation.PushAsync(new LoginPage());
+            }
             
         }
 

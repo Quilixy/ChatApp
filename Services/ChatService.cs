@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using ChatApp.Models;
+using ChatApp.Utilities;
 
 namespace ChatApp.Services
 {
@@ -25,32 +26,32 @@ namespace ChatApp.Services
         }
         public async Task SendMessageAsync(string sender, string receiver, string content)
         {
-            if (string.IsNullOrEmpty(content) && App.CurrentUser == null)
+            if (App.CurrentUser == null)
             {
-                Console.WriteLine("Hata: Mesaj veya kullanıcı bilgisi alınamadı");;
+                await AlertUtils.ShowAlertAsync("Hata","Kullanıcı Bilgisi Alınamadı","Tamam");
                 
             }
-            //if (chatId == null)
-            //{
-               // await App.DatabaseService.GenerateNewChatIdAsync();
-            //}
+            else if(string.IsNullOrEmpty(content))
+            {
+                await AlertUtils.ShowAlertAsync("Hata","Boş Mesaj Girilemez","Tamam");
+            }
             else
             {
               string encryptedContent = await EncryptionService.Encrypt(content);
-                             var message = new MessageModel
-                             {
-                                 Sender = sender,
-                                 Receiver = receiver,
-                                 Content = encryptedContent,
-                                 ChatId =await App.DatabaseService.GetOrCreateChatIdAsync(sender, receiver),
-                                 Timestamp = DateTime.Now
-                             };
-                             await App.DatabaseService.SaveMessageAsync(message);
-                             await App.DatabaseService.UpdateConversationAsync(message.Sender, message.Receiver, message.Content);
+                var message = new MessageModel
+                {
+                    Sender = sender,
+                    Receiver = receiver,
+                    Content = encryptedContent,
+                    ChatId =await App.DatabaseService.GetOrCreateChatIdAsync(sender, receiver),
+                    Timestamp = DateTime.Now
+                };
+                await App.DatabaseService.SaveMessageAsync(message);
+                await App.DatabaseService.UpdateConversationAsync(message.Sender, message.Receiver, message.Content);
             }
         }
 
-        // Grup sohbeti için mesaj gönderme
+
         public async Task SendGroupMessage(string Content)
         {
             

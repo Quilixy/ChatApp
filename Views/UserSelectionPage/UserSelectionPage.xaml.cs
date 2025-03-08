@@ -25,6 +25,10 @@ namespace ChatApp.Views
                 await Navigation.PushAsync(new ChatPage(receiverUsername));
             }
         }
+        private async void OnHomePageClicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new HomePage());
+        }
 
         //private void CreateChatIDOnTapped(object sender, ItemTappedEventArgs e){}
         
