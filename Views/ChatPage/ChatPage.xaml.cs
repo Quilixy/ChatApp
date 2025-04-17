@@ -38,6 +38,8 @@ namespace ChatApp.Views
             MessagesListView.ItemsSource = Messages;
         }
         
+        
+        
 
         private async void OnSendClicked(object sender, EventArgs e)
         {
@@ -46,5 +48,6 @@ namespace ChatApp.Views
             MessageEntry.Text = "";
             LoadMessages();
         }
+        
     }
 }

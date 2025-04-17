@@ -38,7 +38,7 @@ namespace ChatApp.Services
             List<(string Ip, string Hostname)> activeDevices = new();
             List<Task> tasks = new();
 
-            for (int i = 1; i <= 254; i++)
+            for (int i = 2; i <= 254; i++)
             {
                 string ip = $"{subnet}.{i}";
 

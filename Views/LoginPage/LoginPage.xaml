@@ -7,7 +7,7 @@
         <Entry x:Name="UsernameEntry" Placeholder="Enter your username" />
         
         <Label Text="Password" />
-        <Entry x:Name="PasswordEntry" Placeholder="Enter your password" IsPassword="True" />
+        <Entry x:Name="PasswordEntry" Placeholder="Enter your password" IsPassword="True" Completed="OnLoginClicked"/>
         
         <Button Text="Login" Clicked="OnLoginClicked" />
         <Button Text="Kayıt Ol" Clicked="OnRegisterClicked" BackgroundColor="LightGray" />

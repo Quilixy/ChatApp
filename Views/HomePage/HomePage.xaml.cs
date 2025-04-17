@@ -77,16 +77,8 @@ namespace ChatApp.Views
         private async void OnFindNearbyUsersClicked(object sender, EventArgs e)
         {
             var nearbyUsers = await WiFiService.GetNearbyUsers();
+            await Navigation.PushAsync(new UserSelectionPage(nearbyUsers));
             
-            if (nearbyUsers != null && nearbyUsers.Count > 0)
-            {
-                // UserSelectionPage'e yakındaki kullanıcıları gönder
-                await Navigation.PushAsync(new UserSelectionPage(nearbyUsers));
-            }
-            else
-            {
-                await DisplayAlert("No Users", "No nearby users found.", "OK");
-            }
         }
     }
 }
