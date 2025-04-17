@@ -15,20 +15,7 @@ namespace ChatApp.Utilities
 
             return input.Trim().ToLower();
         }
-
-        // Geçerli bir e-posta formatı olup olmadığını kontrol eder
-        public static bool IsValidEmail(string email)
-        {
-            try
-            {
-                var mailAddress = new System.Net.Mail.MailAddress(email);
-                return mailAddress.Address == email;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+    
 
         // Şifreyi doğrulama
         public static bool IsValidPassword(string password)

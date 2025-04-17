@@ -13,14 +13,14 @@ namespace ChatApp.Views
         public HomePage()
         {
             InitializeComponent();
-            
+            LoadConversations();
             
              MessagingCenter.Subscribe<ChatPage, ObservableCollection<ConversationModel>>(this, "MessagesUpdated", (sender, updatedConversations) =>
             {
                 Conversations = updatedConversations;
                 ConversationsListView.ItemsSource = Conversations;
             });
-            LoadConversations();
+            
         }
 
         private async void LoadConversations()
@@ -40,7 +40,6 @@ namespace ChatApp.Views
                     {
                         if (!string.IsNullOrEmpty(conversation.LastMessage))
                         {
-                            // Şifre çözme işlemi
                             conversation.LastMessage = await EncryptionService.Decrypt(conversation.LastMessage);
                         }
                     }
@@ -50,7 +49,6 @@ namespace ChatApp.Views
                 {
                     Conversations = new ObservableCollection<ConversationModel>();
                 }
-                
                 ConversationsListView.ItemsSource = Conversations;
             }          
         }

@@ -4,10 +4,19 @@
              x:Class="ChatApp.Views.UserSelectionPage">
 
     <StackLayout>
+        <Label Text="Cihaz IP Adresi:"
+               FontSize="18"
+               HorizontalOptions="Center" />
+        
+        <Label Text="{Binding LocalIp}"
+               FontSize="16"
+               TextColor="Gray"
+               HorizontalOptions="Center" />
+        
         <Label Text="Nearby Users"
                HorizontalOptions="Center"
                VerticalOptions="CenterAndExpand" />
-
+        
         <!-- Yakındaki kullanıcıları listeleyen ListView -->
         <ListView x:Name="UsersListView"
                   ItemTapped="OnUserTapped">

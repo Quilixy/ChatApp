@@ -19,7 +19,7 @@ namespace ChatApp.Views
             _chatService = new ChatService();
             _receiverUsername = string.IsNullOrEmpty(receiverUsername) ? "Unknown" : receiverUsername;
             UserNameLabel.Text = $"Chatting with {_receiverUsername}";
-            _chatId = App.DatabaseService.GetOrCreateChatIdAsync(App.CurrentUser.Username, _receiverUsername);//chatId;
+            _chatId = App.DatabaseService.GetOrCreateChatIdAsync(App.CurrentUser.Username, _receiverUsername);
             
             if (App.CurrentUser == null)
             {
@@ -41,7 +41,6 @@ namespace ChatApp.Views
 
         private async void OnSendClicked(object sender, EventArgs e)
         {
-              
             string messageContent = MessageEntry.Text;
             await _chatService.SendMessageAsync(App.CurrentUser.Username, _receiverUsername, messageContent);
             MessageEntry.Text = "";
