@@ -8,19 +8,25 @@ namespace ChatApp.Views
 {
     public partial class HomePage : ContentPage
     {
-        public ObservableCollection<ConversationModel> Conversations { get; set; } = new ObservableCollection<ConversationModel>();
-
+        public ObservableCollection<ConversationModel> Conversations { get; set; } = 
+            new ObservableCollection<ConversationModel>();
+        private readonly UdpService _udpService;
         public HomePage()
         {
             InitializeComponent();
             LoadConversations();
-            
-             MessagingCenter.Subscribe<ChatPage, ObservableCollection<ConversationModel>>(this, "MessagesUpdated", (sender, updatedConversations) =>
+            var chatService = new ChatService();
+            _udpService = new UdpService(chatService);
+            _udpService.StartListening();
+             MessagingCenter
+                 .Subscribe
+                     <ChatPage, ObservableCollection<ConversationModel>>
+                     (this, "MessagesUpdated", 
+                         (sender, updatedConversations) =>
             {
                 Conversations = updatedConversations;
                 ConversationsListView.ItemsSource = Conversations;
             });
-            
         }
 
         private async void LoadConversations()
@@ -73,12 +79,10 @@ namespace ChatApp.Views
                 
             }
         }
-
         private async void OnFindNearbyUsersClicked(object sender, EventArgs e)
         {
             var nearbyUsers = await WiFiService.GetNearbyUsers();
             await Navigation.PushAsync(new UserSelectionPage(nearbyUsers));
-            
         }
     }
 }

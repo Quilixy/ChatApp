@@ -28,28 +28,36 @@ namespace ChatApp.Services
         {
             if (App.CurrentUser == null)
             {
-                await AlertUtils.ShowAlertAsync("Hata","Kullanıcı Bilgisi Alınamadı","Tamam");
-                
+                await AlertUtils.ShowAlertAsync("Hata", "Kullanıcı Bilgisi Alınamadı", "Tamam");
+                return;
             }
-            else if(string.IsNullOrEmpty(content))
+
+            if (string.IsNullOrEmpty(content))
             {
-                await AlertUtils.ShowAlertAsync("Hata","Boş Mesaj Girilemez","Tamam");
+                await AlertUtils.ShowAlertAsync("Hata", "Boş Mesaj Girilemez", "Tamam");
+                return;
             }
-            else
+
+            string encryptedContent = await EncryptionService.Encrypt(content);
+
+            var message = new MessageModel
             {
-                string encryptedContent = await EncryptionService.Encrypt(content);
-                var message = new MessageModel
-                {
-                    Sender = sender,
-                    Receiver = receiver,
-                    Content = encryptedContent,
-                    ChatId =await App.DatabaseService.GetOrCreateChatIdAsync(sender, receiver),
-                    Timestamp = DateTime.Now
-                };
-                await App.DatabaseService.SaveMessageAsync(message);
-                //await App.DatabaseService.UpdateConversationAsync(message.Sender, message.Receiver, message.Content);
-            }
+                Sender = sender,
+                Receiver = receiver,
+                Content = encryptedContent,
+                ChatId = await App.DatabaseService.GetOrCreateChatIdAsync(sender, receiver),
+                Timestamp = DateTime.Now
+            };
+
+            await App.DatabaseService.SaveMessageAsync(message);
+
+            
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                App.MessageList?.Add(message); // MessageList, UI'da bağlı olan ObservableCollection olmalı
+            });
         }
+
 
 
         public async Task SendGroupMessage(string Content)

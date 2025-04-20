@@ -20,6 +20,13 @@ namespace ChatApp.Views
             UsersListView.ItemsSource = NearbyUsers; 
             
         }
+
+        private async void OnSendButtonClicked(object sender, EventArgs e)
+        {
+            string ipAddress = ipEntry.Text;
+            await Navigation.PushAsync(new ChatPage(ipAddress));
+        }
+        
         private async void OnUserTapped(object? sender, ItemTappedEventArgs e)
         {
             if (e.Item is ValueTuple<string, string> selectedTuple)

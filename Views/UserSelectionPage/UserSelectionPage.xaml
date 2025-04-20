@@ -13,6 +13,10 @@
                TextColor="Gray"
                HorizontalOptions="Center" />
         
+        <Entry x:Name="ipEntry" 
+               Placeholder="Hedef IP Adresi" 
+               Completed="OnSendButtonClicked"/>
+        
         <Label Text="Nearby Users"
                HorizontalOptions="Center"
                VerticalOptions="CenterAndExpand" />
